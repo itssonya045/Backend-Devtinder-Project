@@ -20,9 +20,30 @@ app.use(express.json())
  })
 
 
+app.get("/user", async (req, res) => {
+    const email = req.body.emailId;
+    try {
+        const data = await User.find({ emailId: email });
+        if (data.length === 0) {
+            return res.status(404).send("Email Not Found in database.");
+        }
+        res.send(data);
+    } catch (err) {
+        res.send("something went wrong.");
+    }
+});
 
 
+app.get("/feed",async(req,res)=>{
 
+    try{
+        const users = await User.find({})
+        res.send(users)
+
+    }catch (err) {
+        res.send("something went wrong.");
+    }
+})
 
 
 ConnectDB().then(() => {
