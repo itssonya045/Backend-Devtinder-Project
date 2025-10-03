@@ -15,7 +15,7 @@ app.use(express.json())
 
     res.send("user save data in database successfully. ")
     }catch(err){
-        res.status.send("ERROR", +err.message)
+        res.status(400).send("ERROR :" +err.message)
     }
  })
 
