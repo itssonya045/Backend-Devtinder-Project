@@ -15,7 +15,7 @@ try{
     const {firstName , lastName ,emailId ,password} = req.body;
     
     const passwordhash = await bcrypt.hash(password,10);
-    console.log(passwordhash)
+    
     const user = new User({
         firstName,lastName,emailId,password:passwordhash
     })
@@ -25,10 +25,32 @@ try{
   
 
     res.send("user save data in database successfully. ")
-    }catch(err){
+   
+ }catch(err){
         res.status(400).send("ERROR : " +err.message)
     }
- })
+})
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId });
+    
+    if (!user) {
+      throw new Error("Invalid email or password.");
+    }
+
+    const isPassword = await bcrypt.compare(password, user.password);
+    if (!isPassword) {
+      throw new Error("Invalid email or password.");
+    }
+
+    res.status(200).send("User login successfully...!!!");
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
+});
 
 
 app.get("/user", async (req, res) => {
