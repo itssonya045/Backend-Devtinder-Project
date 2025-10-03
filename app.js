@@ -57,12 +57,24 @@ app.delete("/user/:userId", async (req, res) => {
 app.patch("/user/:userId", async (req, res) => {
     const userId = req.params.userId;
     const data = req.body;
+    console.log(data)
     try {
+        const isAllowedUpdate = ["age","photoUrl","about","skills"]
+        const isAllowed = Object.keys(data).every((k) => isAllowedUpdate.includes(k));
+
+        if(!isAllowed){
+            throw new Error ("Update Is Not Valid...!");
+            
+        }
+
+       if (data.skills && data.skills.length >= 10) {
+        throw new Error("Skills Update Is Not Valid...!");}
+
+        
         const user = await User.findByIdAndUpdate(userId, data);
-        console.log(user);
         res.send("user updated successfully.");
     } catch (err) {
-        res.send("something went wrong.");
+        res.send("Error :" +err.message);
     }
 });
 
