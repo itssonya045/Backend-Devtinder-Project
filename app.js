@@ -5,7 +5,8 @@ const User = require("./src/models/user")
 const validateSignUp = require("./src/utils/validator")
 const bcrypt = require('bcrypt')
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const {userAuth} = require("./src/middleware/auth")
 
 
 
@@ -62,28 +63,11 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile",async(req,res)=>{
+app.get("/profile",userAuth,async(req,res)=>{
     try{
-    const cookie = req.cookies;
-   
-    
-    const {token} = cookie; 
-    if(!token){
-        throw new Error ("token is not valid...!")
-    }
-
-    const decodedMessage = await jwt.verify(token,"DEV@tinder123")
-    
-   
-
-    const {_id} = decodedMessage;
-    const user = await User.findById(_id)
-    if(!user){
-         throw new Error ("User is not valid...!")
-    }
-    
+   const user = req.user;
     res.send(user)
-}catch(err){
+    }catch(err){
       res.status(400).send("ERROR: " + err.message);
 }
 })
