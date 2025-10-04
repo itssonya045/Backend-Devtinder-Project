@@ -2,9 +2,18 @@ const express = require("express");
 const  {ConnectDB} = require("./src/config/database"); 
 const app = express();
 const User = require("./src/models/user")
-app.use(express.json())
 const validateSignUp = require("./src/utils/validator")
 const bcrypt = require('bcrypt')
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken")
+
+
+
+app.use(express.json());
+app.use(cookieParser());
+
+
+
 
  app.post("/signup",async(req,res)=>{
     
@@ -45,12 +54,40 @@ app.post("/login", async (req, res) => {
     if (!isPassword) {
       throw new Error("Invalid email or password.");
     }
-
+    const token = await jwt.sign({_id : user._id},"DEV@tinder123")
+    res.cookie("token",token)
     res.status(200).send("User login successfully...!!!");
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
 });
+
+app.get("/profile",async(req,res)=>{
+    try{
+    const cookie = req.cookies;
+   
+    
+    const {token} = cookie; 
+    if(!token){
+        throw new Error ("token is not valid...!")
+    }
+
+    const decodedMessage = await jwt.verify(token,"DEV@tinder123")
+    
+   
+
+    const {_id} = decodedMessage;
+    const user = await User.findById(_id)
+    if(!user){
+         throw new Error ("User is not valid...!")
+    }
+    
+    res.send(user)
+}catch(err){
+      res.status(400).send("ERROR: " + err.message);
+}
+})
+
 
 
 app.get("/user", async (req, res) => {
