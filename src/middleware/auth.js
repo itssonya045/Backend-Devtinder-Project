@@ -1,32 +1,35 @@
-const jwt = require("jsonwebtoken")
-const User = require("../models/user")
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 
-const userAuth = async(req,res,next)=>{
-    try{
-    const cookie = req.cookie;
 
-    const{token}=cookie;
-    if(!token){
-        throw new Error("token is not valid...!")
+const userAuth = async (req, res, next) => {
+  try {
+    // ✅ Safely access the token
+    const token = req.cookies?.token;
+
+    if (!token) {
+      return res.status(401).send("No token provided");
     }
 
-    const decodedMessage = await jwt.verify(token,"DEV@tinder123")
+    // ✅ Decode the token
+    const decoded = jwt.verify(token, "DEV@tinder123");
 
-    const { id } = decodedMessage;
+    // ✅ Use _id because that's how it's signed
+    const user = await User.findById(decoded._id);
 
-    const user = await User.findById(id)
-    if(!user){
-        throw new Error("user is not valid...!")
+    if (!user) {
+      return res.status(401).send("User not found");
     }
-     req.user = user;
+
+    req.user = user;
     next();
-    
-    }catch(err){
-         res.status(400).send("ERROR: " + err.message);
-    }
+  } catch (err) {
+    res.status(401).send("Unauthorized: " + err.message);
+  }
+};
+
+module.exports = { userAuth };
 
 
-
-}
 
 module.exports = {userAuth}

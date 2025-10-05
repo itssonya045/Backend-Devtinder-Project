@@ -46,7 +46,6 @@ app.post("/login", async (req, res) => {
     const { emailId, password } = req.body;
 
     const user = await User.findOne({ emailId });
-    
     if (!user) {
       throw new Error("Invalid email or password.");
     }
@@ -55,13 +54,22 @@ app.post("/login", async (req, res) => {
     if (!isPassword) {
       throw new Error("Invalid email or password.");
     }
-    const token = await jwt.sign({_id : user._id},"DEV@tinder123")
-    res.cookie("token",token)
+
+    const token = jwt.sign({ _id: user._id }, "DEV@tinder123");
+
+    // Set the token as a cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax"
+    });
+
     res.status(200).send("User login successfully...!!!");
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
 });
+
 
 app.get("/profile",userAuth,async(req,res)=>{
     try{
