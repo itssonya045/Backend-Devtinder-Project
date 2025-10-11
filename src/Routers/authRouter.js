@@ -5,6 +5,7 @@ const validateSignUp = require("../utils/validator")
 const User = require("../models/user")
 const bcrypt = require('bcrypt')
 const {userAuth} = require("../middleware/auth")
+const jwt = require("jsonwebtoken");
 
 appRouter.post("/signup",async(req,res)=>{
     
@@ -61,4 +62,12 @@ appRouter.post("/login", async (req, res) => {
   }
 });
 
+
+appRouter.post("/logout",(req,res)=>{
+    res.cookie("token",null,{
+        expires : new Date(Date.now())
+    })
+
+    res.send("Logout Successful...!!!")
+})
 module.exports = appRouter;
