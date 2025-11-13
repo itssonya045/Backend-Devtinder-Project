@@ -5,6 +5,7 @@ const User = require("../models/user");
 const userRouter = express.Router();
 
 
+
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   try {
     const loggedUser = req.user;
@@ -12,7 +13,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
     const connectionRequest = await ConnectionRequest.find({
       toUserId: loggedUser._id,
       status: "interested",
-    }).populate("fromUserId", ["firstName", "lastName" , "photoUrl"]);
+    }).populate("fromUserId", ["firstName", "lastName" , "photoUrl","about","age","gender"]);
 
     res
       .status(200)
@@ -36,8 +37,8 @@ userRouter.get("/user/connections",userAuth , async(req,res)=>{
        {
          fromUserId : loggedUser._id , status : "accepted"
       }]
-  }).populate("fromUserId", ["firstName", "lastName" , "photoUrl"])
-  .populate("toUserId", ["firstName", "lastName" , "photoUrl"])
+  }).populate("fromUserId", ["firstName", "lastName" , "photoUrl","about"])
+  .populate("toUserId", ["firstName", "lastName" , "photoUrl","about"])
 
 
   const data = connectionRequest.map((k) =>
@@ -90,10 +91,10 @@ userRouter.get("/feed", userAuth, async (req, res) => {
         { _id: { $nin: Array.from(hideFeed) } },
         { _id: { $ne: loggedUser._id } }
       ]
-    }).select("firstName lastName email").skip(skip).limit(limit)
+    }).select("firstName lastName email photoUrl age gender about skills").skip(skip).limit(limit)
 
     // 4️⃣ Send the feed
-    res.send(users);
+    res.send({data : users});
 
   } catch (error) {
     res.status(400).send("ERROR: " + error.message);
