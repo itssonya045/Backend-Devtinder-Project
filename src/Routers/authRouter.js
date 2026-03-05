@@ -1,42 +1,39 @@
 const express = require("express");
 
 const appRouter = express.Router();
-const validateSignUp = require("../utils/validator")
-const User = require("../models/user")
-const bcrypt = require('bcrypt')
-const {userAuth} = require("../middleware/auth")
+const validateSignUp = require("../utils/validator");
+const User = require("../models/user");
+const bcrypt = require("bcrypt");
+const { userAuth } = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 
-appRouter.post("/signup",async(req,res)=>{
-    
-try{ 
+appRouter.post("/signup", async (req, res) => {
+  try {
     //validate signup
     validateSignUp(req);
     //encrpted password
-    const {firstName , lastName ,emailId ,password} = req.body;
-    
-    const passwordhash = await bcrypt.hash(password,10);
-    
+    const { firstName, lastName, emailId, password } = req.body;
+
+    const passwordhash = await bcrypt.hash(password, 10);
+
     const user = new User({
-        firstName,lastName,emailId,password:passwordhash
-    })
-    
-    
+      firstName,
+      lastName,
+      emailId,
+      password: passwordhash,
+    });
+
     const data = await user.save();
-  
 
-    res.send("user save data in database successfully. ")
-   
- }catch(err){
-        res.status(400).send("ERROR : " +err.message)
-    }
-})
-
+    res.send("user save data in database successfully. ");
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
 
 appRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
-
     const user = await User.findOne({ emailId });
     if (!user) {
       throw new Error("Invalid email or password.");
@@ -53,21 +50,21 @@ appRouter.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
-      sameSite: "lax"
+      sameSite: "lax",
     });
 
-    res.status(200).send( user);
+    res.status(200).send(user);
   } catch (err) {
+    console.log(err);
     res.status(400).send("ERROR: " + err.message);
   }
 });
 
+appRouter.post("/logout", (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
 
-appRouter.post("/logout",(req,res)=>{
-    res.cookie("token",null,{
-        expires : new Date(Date.now())
-    })
-
-    res.send("Logout Successful...!!!")
-})
+  res.send("Logout Successful...!!!");
+});
 module.exports = appRouter;

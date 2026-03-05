@@ -14,10 +14,22 @@ const validateSignUp = (req)=>{
     }
 }
 
-const validEditprofile = (req)=>{
-    const allEditfeild =["firstName","lastName","about","skill","photoUrl","gender"]
-    const isAllowed = Object.keys(req.body).every((feild)=>allEditfeild.includes(feild))
-    return isAllowed
-}
+const validEditprofile = (req) => {
+  const allEditFields = [
+    "firstName",
+    "lastName",
+    "about",
+    "skills",   
+    "photoUrl",
+    "gender",
+    "age"      
+  ];
+
+  const isAllowed = Object.keys(req.body).every((field) =>
+    allEditFields.includes(field)
+  );
+
+  return isAllowed;
+};
 module.exports = validateSignUp;
 module.exports = validEditprofile;

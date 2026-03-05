@@ -85,7 +85,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       hideFeed.add(request.toUserId._id.toString());
     });
 
-    // 3️⃣ Find all users who are NOT connected and NOT the logged user
+    
     const users = await User.find({
       $and: [
         { _id: { $nin: Array.from(hideFeed) } },
